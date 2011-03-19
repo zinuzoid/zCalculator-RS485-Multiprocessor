@@ -65,6 +65,23 @@ void zstrcpy(char *dst,char *src)
     }
 }
 
+//CRC
+uint8 CRC8(uint8 data,uint8 prevcrc)
+{
+  uint8 chk,crc;
+  chk=data^prevcrc;
+  crc=0;
+  if(chk&0x01)  crc^=0x5e;
+  if(chk&0x02)  crc^=0xbc;
+  if(chk&0x04)  crc^=0x61;
+  if(chk&0x08)  crc^=0xc2;
+  if(chk&0x10)  crc^=0x9d;
+  if(chk&0x20)  crc^=0x23;
+  if(chk&0x40)  crc^=0x46;
+  if(chk&0x80)  crc^=0x8c;
+  return crc;
+}
+//End CRC
 
 
 

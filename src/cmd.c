@@ -97,6 +97,7 @@ void CmdManage_Recv(TCMD *cmd,uint8 ch)
       cmd->buf.index++;
       cmd->buf.cmd[cmd->buf.index]=0;//terminate
       cmd->print((char*)&ch);//echo
+      USART2_SendChar(ch);//pass to 485
     }
     break;
   }

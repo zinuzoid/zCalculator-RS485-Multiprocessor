@@ -16,9 +16,7 @@
 #include "button.h"
 #include "roundrobintask.h"
 #include "cmd.h"
-#include "util.h"
-
-#include "stack.h"
+#include "rs485protocal.h"
 
 /*
 NVIC
@@ -30,12 +28,13 @@ int main()
   USARTAPI_Init();
 
   USART1_SendStr("\f\r\n=================USART1====================");
-  USART2_SendStr("\f\r\n=================USART2====================");
+  //USART2_SendStr("\f\r\n=================USART2====================");
 
   SysTick_Init();
   LED_Init();
   Button_Init();
   Cmd_Init();
+  RS485ProtocalInit();
 
 	while(1)
 	{

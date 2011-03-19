@@ -77,6 +77,7 @@ uint8 USART2_SendChar(uint8 data)
     {
         uint8 tmp;
         QueueU8Delete(&qSerialTx[1],&tmp);
+        GPIO_WriteBit(GPIOA,GPIO_Pin_1,Bit_SET);//FIXME
         USARTPHY2_SendData(tmp);
         return 1;
     }
@@ -180,7 +181,7 @@ static void USARTPHY2_Init(void)
 	GPIO_Init(GPIOA,&GPIOInit);
 
   //USART
-	USARTInit.USART_BaudRate=115200;
+	USARTInit.USART_BaudRate=57600;
 	USARTInit.USART_WordLength=USART_WordLength_8b;
 	USARTInit.USART_StopBits=USART_StopBits_1;
 	USARTInit.USART_Parity=USART_Parity_No;
@@ -249,6 +250,8 @@ void USART2_IRQHandler(void)
     USART_ClearITPendingBit(USART2,USART_IT_TC);
     if(QueueU8Delete(&qSerialTx[1],&tmp))
       USART_SendData(USART2,tmp);
+    else
+      GPIO_WriteBit(GPIOA,GPIO_Pin_1,Bit_RESET);
   }
 }
 //end Physical Driver

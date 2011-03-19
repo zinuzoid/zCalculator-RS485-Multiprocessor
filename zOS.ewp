@@ -1768,6 +1768,9 @@
       <name>$PROJ_DIR$\src\roundrobintask.h</name>
     </file>
     <file>
+      <name>$PROJ_DIR$\src\rs485protocal.h</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\src\stack.h</name>
     </file>
     <file>
@@ -1805,6 +1808,9 @@
     </file>
     <file>
       <name>$PROJ_DIR$\src\roundrobintask.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\src\rs485protocal.c</name>
     </file>
     <file>
       <name>$PROJ_DIR$\src\stack.c</name>
