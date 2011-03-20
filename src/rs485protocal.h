@@ -28,6 +28,8 @@
 
 #define PACKET_MYID PACKET_SRCDST_1
 
+uint8 GetRand();
+
 void RS485ProtocalInit();
 uint8 RS485AskSin(int8 d1,int8 d2);
 uint8 RS485AskCos(int8 d1,int8 d2);

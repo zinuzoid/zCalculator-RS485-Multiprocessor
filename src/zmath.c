@@ -17,10 +17,13 @@
 
 void sinu16(int8 d1,int8 d2,uint8 *a1,uint8 *a2)
 {
-  double dvalue,da,db;
+  double dvalue;
   int16 ans;
-
-  dvalue=(double)d1+(double)d2/100.0;
+  
+  if(d1>0)
+    dvalue=(double)d1+(double)d2/100.0;
+  else
+    dvalue=(double)d1-(double)d2/100.0;
   dvalue=zsin(dvalue);
   ans=(int16)(dvalue*100.0);
 

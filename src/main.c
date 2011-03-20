@@ -1,4 +1,4 @@
-/*------------------------------------------------------------------------------------------------
+  /*------------------------------------------------------------------------------------------------
 ** Program 	:	main.c
 ** Project	:	zOS
 ** CPU		:	STM32F100
@@ -19,7 +19,7 @@
 #include "rs485protocal.h"
 
 /*
-NVIC
+NVIC PRIORITY
 5-USART
 */
 
@@ -42,12 +42,12 @@ int main()
 
 	while(1)
 	{
-		//fast call
-		
-		//end fast call
-		if(SysTick_1ms())
-		{
-      TaskRun();
-		}
-  }
+          //fast call
+          GetRand();
+          //end fast call
+          if(SysTick_1ms())
+          {
+            TaskRun();
+        }
+    }
 }

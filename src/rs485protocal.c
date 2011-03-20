@@ -54,9 +54,13 @@ struct _TSTATERECV
   uint8 (*fnRecvChar)(uint8*);
 };
 
-TTASK Task485;
+TTASK Task485Recv;
 
 TSTATERECV StateRecv;
+
+TPACKET PHYPacketSend;
+
+uint8 rand;
 
 static void RS485RecvTask_10ms();
 static void RS485PHYInit();
@@ -78,13 +82,32 @@ static void RS485State_GetPacket(TSTATERECV *state,uint8 data);
 
 static void PacketProcess(TPACKET packet);
 
+static void RS485SendTask_5ms();
+void RS485PHYSendInit();
+
+//------------------------------------------------------------------------------------------------
+//PHY Sender Task
+TTASK Task485Send;
+
+void RS485PHYSendInit()
+{
+  TaskAdd(&Task485Send,"RS485Send",5,RS485SendTask_5ms,0);
+}
+
+static void RS485SendTask_5ms()
+{
+}
+//End PHY Sender Task
+//------------------------------------------------------------------------------------------------
+
 //------------------------------------------------------------------------------------------------
 //Application Layer
 void RS485ProtocalInit()
 {
   RS485PHYInit();
+  RS485PHYSendInit();
   RS485StateInit(&StateRecv,USART2_RecvChar);
-  TaskAdd(&Task485,"RS485Recv",10,RS485RecvTask_10ms,&StateRecv);
+  TaskAdd(&Task485Recv,"RS485Recv",10,RS485RecvTask_10ms,&StateRecv);
 }
 
 uint8 RS485AskSin(int8 d1,int8 d2)
@@ -146,6 +169,11 @@ uint8 RS485Ans(uint8 cmd,uint8 dst,int8 d1,int8 d2)
   PacketSend(Packet);
   return 1;
 }
+
+uint8 GetRand()
+{
+  return ((rand++)%4)+1;
+}
 //End Application Layer
 //------------------------------------------------------------------------------------------------
 
@@ -189,21 +217,26 @@ static void RS485State_GetETX(TSTATERECV *state,uint8 data)
     PacketInsert(&state->packet,data);
     state->fnState=RS485State_GetSTX;
   }
+  else if(data==PACKET_ETX)
+  {
+    
+  }
+  else
+  {
+    
+  }
 }
 
 static void RS485State_GetSTX(TSTATERECV *state,uint8 data)
 {
   if(data==PACKET_STX)
   {
-    PacketInit(&state->packet);
-    PacketInsert(&state->packet,data);
+
   }
   else if(data==PACKET_ETX)
   {
+    PacketInit(&state->packet);
     state->fnState=RS485State_GetETX;
-    PacketInsert(&state->packet,data);
-    //processing packet here
-    PacketProcess(state->packet);
   }
   else
   {
@@ -214,18 +247,56 @@ static void RS485State_GetSTX(TSTATERECV *state,uint8 data)
 
 static void RS485State_GetPacket(TSTATERECV *state,uint8 data)
 {
-  /*if(data==PACKET_STX)//FIXME if check double STX
+  if(data==PACKET_STX)//FIXME if check double STX
   {
-    PacketInit(&state->packet);
-    PacketInsert(&state->packet,data);
-    state->fnState=RS485State_GetSTX;
+    uint8 nextdata;
+    if(state->fnRecvChar(&nextdata))
+    {
+      if(nextdata==PACKET_STX)
+      {
+        PacketInsert(&state->packet,data);
+      }
+      else if(nextdata==PACKET_ETX)
+      {
+        //not possible protection
+      }
+      else
+      {
+        PacketInit(&state->packet);
+        state->fnState=RS485State_GetETX;
+      }
+    }
+    else
+    {
+      PacketInit(&state->packet);
+      state->fnState=RS485State_GetETX;
+    }
   }
-  else*/ if(data==PACKET_ETX)
+  else if(data==PACKET_ETX)
   {
-    state->fnState=RS485State_GetETX;
-    PacketInsert(&state->packet,data);
-    //processing packet here
-    PacketProcess(state->packet);
+    uint8 nextdata;
+    if(state->fnRecvChar(&nextdata))
+    {
+      if(nextdata==PACKET_ETX)
+      {
+        PacketInsert(&state->packet,data);
+      }
+      else if(nextdata==PACKET_STX)
+      {
+        //processing packet here
+        PacketProcess(state->packet);
+        state->fnState=RS485State_GetSTX;
+        PacketInsert(&state->packet,nextdata);
+      }
+    }
+    else
+    {
+      //processing packet here
+      PacketInsert(&state->packet,data);
+      PacketProcess(state->packet);
+      PacketInit(&state->packet);
+      state->fnState=RS485State_GetETX;
+    }
   }
   else
   {
@@ -376,23 +447,15 @@ static uint8 EncapData(TDATA *data,uint8 d1,uint8 d2)
   DataInit(data);
 
   DataInsert(data,d1);
-  if(d1==PACKET_STX)
-    DataInsert(data,PACKET_STX);
-  else if(d1==PACKET_ETX)
-    DataInsert(data,PACKET_ETX);
-
   DataInsert(data,d2);
-  if(d2==PACKET_STX)
-    DataInsert(data,PACKET_STX);
-  else if(d2==PACKET_ETX)
-    DataInsert(data,PACKET_ETX);
 
   return 1;
 }
 
 static uint8 EncapPacket(TPACKET *packet,uint8 dst,uint8 cmd,TDATA data)
 {
-  uint8 dstsrc,len,i;
+  TPACKET crctestpacket;
+  uint8 dstsrc,len,crc,i;
   if(!packet)
     return 0;
 
@@ -400,16 +463,49 @@ static uint8 EncapPacket(TPACKET *packet,uint8 dst,uint8 cmd,TDATA data)
   len=1+data.idx;
 
   PacketInit(packet);
+  PacketInit(&crctestpacket);
 
   PacketInsert(packet,PACKET_STX);
+  PacketInsert(&crctestpacket,PACKET_STX);
+  
   PacketInsert(packet,dstsrc);
+  PacketInsert(&crctestpacket,dstsrc);
+  if(dstsrc==PACKET_STX)
+    PacketInsert(packet,PACKET_STX);
+  else if(dstsrc==PACKET_ETX)
+    PacketInsert(packet,PACKET_ETX);
+  
   PacketInsert(packet,len);
+  PacketInsert(&crctestpacket,len);
+  if(len==PACKET_STX)
+    PacketInsert(packet,PACKET_STX);
+  else if(len==PACKET_ETX)
+    PacketInsert(packet,PACKET_ETX);
+  
   PacketInsert(packet,cmd);
+  PacketInsert(&crctestpacket,cmd);
+  if(cmd==PACKET_STX)
+    PacketInsert(packet,PACKET_STX);
+  else if(cmd==PACKET_ETX)
+    PacketInsert(packet,PACKET_ETX);
+  
   for(i=0;i<data.idx;i++)
   {
-    PacketInsert(packet,data.value[i]);
+    PacketInsert(packet,data.value[i]);    
+    PacketInsert(&crctestpacket,data.value[i]);
+    if(data.value[i]==PACKET_STX)
+      PacketInsert(packet,data.value[i]);
+    else if(data.value[i]==PACKET_ETX)
+      PacketInsert(packet,data.value[i]);    
   }
-  PacketInsert(packet,CRCCalc(*packet));
+  crc=CRCCalc(crctestpacket);
+  PacketInsert(packet,crc);
+  PacketInsert(&crctestpacket,crc);
+  if(crc==PACKET_STX)
+    PacketInsert(packet,PACKET_STX);
+  else if(crc==PACKET_ETX)
+    PacketInsert(packet,PACKET_ETX);
+  
   PacketInsert(packet,PACKET_ETX);
 
   return 1;

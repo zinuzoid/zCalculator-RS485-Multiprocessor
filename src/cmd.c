@@ -210,7 +210,7 @@ static uint8 Cmd_Cos(uint8 *cmd,uint8 len,TPRINT print)
   cmd+=4;
   ParseCalcParam((char*)cmd,&a,&b);
   print("\r\nAskCos Send.");
-  RS485AskSin(a,b);
+  RS485AskCos(a,b);
   return 1;
 }
 
@@ -220,7 +220,7 @@ static uint8 Cmd_Tan(uint8 *cmd,uint8 len,TPRINT print)
   cmd+=4;
   ParseCalcParam((char*)cmd,&a,&b);
   print("\r\nAskTan Send.");
-  RS485AskSin(a,b);
+  RS485AskTan(a,b);
   return 1;
 }
 
@@ -230,7 +230,7 @@ static uint8 Cmd_Log(uint8 *cmd,uint8 len,TPRINT print)
   cmd+=4;
   ParseCalcParam((char*)cmd,&a,&b);
   print("\r\nAskLog Send.");
-  RS485AskSin(a,b);
+  RS485AskLog(a,b);
   return 1;
 }
 
