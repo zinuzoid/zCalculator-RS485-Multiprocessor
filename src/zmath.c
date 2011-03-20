@@ -15,36 +15,20 @@
 #include <math.h>
 
 
-void sinu16(int8 d1,int8 d2,int8 *a1,int8 *a2)
+void sinu16(int8 d1,int8 d2,uint8 *a1,uint8 *a2)
 {
   double dvalue,da,db;
+  int16 ans;
 
   dvalue=(double)d1+(double)d2/100.0;
-
   dvalue=zsin(dvalue);
-  if(dvalue>=0)
-  {
-    da=floor(dvalue);
-    db=(dvalue-da)*100;
+  ans=(int16)(dvalue*100.0);
 
-    *a1=(int8)da;
-    *a2=(int8)db;
-  }
-  else
-  {
-    da=floor(-dvalue);
-    db=(dvalue+da)*-100;
-
-    *a1=(int8)da;
-    *a2=(int8)db;
-    if(*a1==0)
-      *a1=100;
-    if(*a2==0)
-      *a2=100;
-  }
+  *a1=ans&0x00ff;
+  *a2=ans>>8;
 }
 
-void cosu16(int8 d1,int8 d2,int8 *a1,int8 *a2)
+void cosu16(int8 d1,int8 d2,uint8 *a1,uint8 *a2)
 {
   double dvalue,da,db;
 
@@ -58,7 +42,7 @@ void cosu16(int8 d1,int8 d2,int8 *a1,int8 *a2)
   *a2=(int8)db;
 }
 
-void tanu16(int8 d1,int8 d2,int8 *a1,int8 *a2)
+void tanu16(int8 d1,int8 d2,uint8 *a1,uint8 *a2)
 {
   double dvalue,da,db;
 
@@ -72,7 +56,7 @@ void tanu16(int8 d1,int8 d2,int8 *a1,int8 *a2)
   *a2=(int8)db;
 }
 
-void logu16(int8 d1,int8 d2,int8 *a1,int8 *a2)
+void logu16(int8 d1,int8 d2,uint8 *a1,uint8 *a2)
 {
   double dvalue,da,db;
 

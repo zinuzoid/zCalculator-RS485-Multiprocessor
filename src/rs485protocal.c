@@ -151,17 +151,13 @@ uint8 RS485Ans(uint8 cmd,uint8 dst,int8 d1,int8 d2)
 
 static void RS485RecvTask_10ms(TSTATERECV *state)
 {
+  uint8 data;
+
   if(!state)
     return;
 
-  uint8 data;
-  if(state->fnRecvChar(&data))
-  {
-    //USART1_SendStr("\r\n2:");
-    RS485State(state,data);
-    while(state->fnRecvChar(&data))
-       RS485State(state,data);
-  }
+  while(state->fnRecvChar(&data))
+     RS485State(state,data);
 }
 
 //------------------------------------------------------------------------------------------------
@@ -252,7 +248,9 @@ static void PacketProcess(TPACKET packet)
   if(crc==CRCCalc(packet))
   {
     uint8 dst,src,len,cmd;
-    int8 d1,d2;
+    uint8 d1,d2;
+    int16 ans;
+    double dans;
     char tmp[10];
 
     USART1_SendStr("\r\nGot Packet. ");
@@ -296,20 +294,14 @@ static void PacketProcess(TPACKET packet)
         //logu16(d1,d2,&d1,&d2);
         //RS485Ans(PACKET_CMD_ANSLOG,src,d1,d2);
         break;
-      case PACKET_CMD_ANSSIN:
+      case PACKET_CMD_ANSSIN://use int16 represent
       case PACKET_CMD_ANSCOS:
       case PACKET_CMD_ANSTAN:
       case PACKET_CMD_ANSLOG:
         USART1_SendStr("\r\n");
-        if((d1==100)||(d2==100))//FIXME function kak mak
-        {
-          USART1_SendChar('-');
-          if(d1==100)
-            d1=0;
-          if(d2==100)
-            d2=0;
-        }
-        sprintf(tmp,"%d.%d",d1,d2);
+        ans=d1|(d2<<8);
+        dans=(double)(ans/100.0);
+        sprintf(tmp,"%.2f",dans);
         USART1_SendStr(tmp);
         USART1_SendStr("\r\n\r\nz> ");//FIXME use prompt from cmd
         break;
@@ -382,8 +374,18 @@ static uint8 EncapData(TDATA *data,uint8 d1,uint8 d2)
     return 0;
 
   DataInit(data);
+
   DataInsert(data,d1);
+  if(d1==PACKET_STX)
+    DataInsert(data,PACKET_STX);
+  else if(d1==PACKET_ETX)
+    DataInsert(data,PACKET_ETX);
+
   DataInsert(data,d2);
+  if(d2==PACKET_STX)
+    DataInsert(data,PACKET_STX);
+  else if(d2==PACKET_ETX)
+    DataInsert(data,PACKET_ETX);
 
   return 1;
 }

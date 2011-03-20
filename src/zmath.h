@@ -9,10 +9,10 @@
 ------------------------------------------------------------------------------------------------*/
 
 
-void sinu16(int8 d1,int8 d2,int8 *a1,int8 *a2);
-void cosu16(int8 d1,int8 d2,int8 *a1,int8 *a2);
-void tanu16(int8 d1,int8 d2,int8 *a1,int8 *a2);
-void logu16(int8 d1,int8 d2,int8 *a1,int8 *a2);
+void sinu16(int8 d1,int8 d2,uint8 *a1,uint8 *a2);
+void cosu16(int8 d1,int8 d2,uint8 *a1,uint8 *a2);
+void tanu16(int8 d1,int8 d2,uint8 *a1,uint8 *a2);
+void logu16(int8 d1,int8 d2,uint8 *a1,uint8 *a2);
 double zsin(double value);
 double zcos(double value);
 double ztan(double value);
