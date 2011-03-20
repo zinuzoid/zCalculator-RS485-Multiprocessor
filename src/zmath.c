@@ -14,8 +14,10 @@
 
 #include <math.h>
 
+static void calcu16(int8 d1,int8 d2,uint8 *a1,uint8 *a2,double (*fnMath)(double));
 
-void sinu16(int8 d1,int8 d2,uint8 *a1,uint8 *a2)
+
+static void calcu16(int8 d1,int8 d2,uint8 *a1,uint8 *a2,double (*fnMath)(double))
 {
   double dvalue;
   int16 ans;
@@ -24,55 +26,32 @@ void sinu16(int8 d1,int8 d2,uint8 *a1,uint8 *a2)
     dvalue=(double)d1+(double)d2/100.0;
   else
     dvalue=(double)d1-(double)d2/100.0;
-  dvalue=zsin(dvalue);
+  dvalue=fnMath(dvalue);
   ans=(int16)(dvalue*100.0);
 
   *a1=ans&0x00ff;
-  *a2=ans>>8;
+  *a2=ans>>8;  
+}
+
+void sinu16(int8 d1,int8 d2,uint8 *a1,uint8 *a2)
+{
+  calcu16(d1,d2,a1,a2,sin);
 }
 
 void cosu16(int8 d1,int8 d2,uint8 *a1,uint8 *a2)
 {
-  double dvalue,da,db;
-
-  dvalue=(double)d1+(double)d2/100.0;
-
-  dvalue=zsin(dvalue);
-  da=floor(dvalue);
-  db=(dvalue-da)*100;
-
-  *a1=(int8)da;
-  *a2=(int8)db;
+  calcu16(d1,d2,a1,a2,cos);
 }
 
 void tanu16(int8 d1,int8 d2,uint8 *a1,uint8 *a2)
 {
-  double dvalue,da,db;
-
-  dvalue=(double)d1+(double)d2/100.0;
-
-  dvalue=zsin(dvalue);
-  da=floor(dvalue);
-  db=(dvalue-da)*100;
-
-  *a1=(int8)da;
-  *a2=(int8)db;
+  calcu16(d1,d2,a1,a2,tan);
 }
 
 void logu16(int8 d1,int8 d2,uint8 *a1,uint8 *a2)
 {
-  double dvalue,da,db;
-
-  dvalue=(double)d1+(double)d2/100.0;
-
-  dvalue=zsin(dvalue);
-  da=floor(dvalue);
-  db=(dvalue-da)*100;
-
-  *a1=(int8)da;
-  *a2=(int8)db;
+  calcu16(d1,d2,a1,a2,log10);
 }
-
 
 
 double zsin(double value)

@@ -18,7 +18,7 @@ ActionState=1
 Enabled=0
 ShowSource=1
 [DebugChecksum]
-Checksum=44534104
+Checksum=-1600632809
 [DisAssemblyWindow]
 NumStates=_ 1
 State 1=_ 1
@@ -44,9 +44,7 @@ Placement=_ 455 392 892 663
 [Disassemble mode]
 mode=0
 [Breakpoints]
-Bp0=_ "STD_CODE" "{$PROJ_DIR$\src\rs485protocal.c}.166.3@1" 1 0 0 0 "" 0 ""
-Bp1=_ "STD_CODE" "{$PROJ_DIR$\src\cmd.c}.210.3@1" 1 0 0 0 "" 0 ""
-Count=2
+Count=0
 [Log file]
 LoggingEnabled=_ 0
 LogFile=_ ""

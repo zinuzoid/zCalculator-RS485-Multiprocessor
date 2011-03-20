@@ -244,15 +244,25 @@ static uint8 Cmd_TaskMonitor(uint8 *cmd,uint8 len,TPRINT print)
 static void ParseCalcParam(char* str,int8 *a,int8 *b)
 {
   char *ptr=str;
-  while(*ptr!='.')
+  
+  while((*ptr!='.')&&(*ptr!=0))
     ptr++;
-  *ptr=0;
-  *a=atoi(str);
-
-  str=ptr+1;
-  *b=atoi(str);
-  if(zstrlen(str)==1)
-    *b=*b*10;
+  if(*ptr=='.')//FIXME algorithm kak mak
+  {
+    *ptr=0;
+    *a=atoi(str);
+  
+    str=ptr+1;
+    *b=atoi(str);
+    if(zstrlen(str)==1)
+      *b=*b*10;
+  }
+  else
+  {
+    *ptr=0;
+    *a=atoi(str);
+    *b=0;
+  }
 }
 
 

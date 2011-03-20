@@ -54,11 +54,21 @@ struct _TSTATERECV
   uint8 (*fnRecvChar)(uint8*);
 };
 
+typedef struct _TSTATESEND TSTATESEND;
+
+struct _TSTATESEND
+{
+  TPACKET packet;
+  uint8 timeout;
+  void (*fnState)(TSTATESEND*);
+  uint8 (*fnSendChar)(uint8);
+};
+
 TTASK Task485Recv;
 
 TSTATERECV StateRecv;
 
-TPACKET PHYPacketSend;
+TSTATESEND StateSend;
 
 uint8 rand;
 
@@ -85,18 +95,71 @@ static void PacketProcess(TPACKET packet);
 static void RS485SendTask_5ms();
 void RS485PHYSendInit();
 
+static void RS485State_Idle(TSTATESEND *state);
+static void RS485State_Wait(TSTATESEND *state);
+static void RS485State_Send(TSTATESEND *state);
+
 //------------------------------------------------------------------------------------------------
 //PHY Sender Task
 TTASK Task485Send;
 
 void RS485PHYSendInit()
 {
-  TaskAdd(&Task485Send,"RS485Send",5,RS485SendTask_5ms,0);
+  PacketInit(&StateSend.packet);
+  StateSend.fnSendChar=USART2_SendChar;
+  StateSend.fnState=RS485State_Idle;
+  StateSend.timeout=0;
+  TaskAdd(&Task485Send,"RS485Send",5,RS485SendTask_5ms,&StateSend);
 }
 
-static void RS485SendTask_5ms()
+static void RS485SendTask_5ms(TSTATESEND *state)
 {
+  state->fnState(state);
 }
+
+static void RS485State_Idle(TSTATESEND *state)
+{
+  
+}
+
+static void RS485State_Send(TSTATESEND *state)
+{
+  uint8 i,data;
+  
+  while(USART2_RecvChar(&data));//FIXME clear buf kak mak
+  
+  for(i=0;i<state->packet.idx;i++)
+  {
+    USART2_SendChar(state->packet.value[i]);//FIXME use coilision detect
+    while(!USART2_RecvChar(&data));
+    if(data!=state->packet.value[i])
+    {
+      //coilision here
+      state->timeout=GetRand();
+      state->fnState=RS485State_Wait;
+      return;
+    }
+  }
+  for(i=0;i<state->packet.idx;i++)
+  {
+    RS485_Echo(state->packet.value[i]);//FIXME echo for test
+  }
+  state->fnState=RS485State_Idle;
+}
+
+static void RS485State_Wait(TSTATESEND *state)
+{
+  if(state->timeout)
+  {
+    state->timeout--;
+  }
+  else
+  {
+    state->fnState=RS485State_Send;
+  }
+}
+
+
 //End PHY Sender Task
 //------------------------------------------------------------------------------------------------
 
@@ -526,13 +589,17 @@ static uint8 CRCCalc(TPACKET packet)
 
 static uint8 PacketSend(TPACKET packet)
 {
-  uint8 i;
+  //uint8 i;  
+  
+  StateSend.packet=packet;
+  StateSend.fnState=RS485State_Send;
 
+  /*
   for(i=0;i<packet.idx;i++)
   {
     USART2_SendChar(packet.value[i]);//FIXME use coilision detect
   }
-
+  */
   return 1;
 }
 //End Packet Encapsulate

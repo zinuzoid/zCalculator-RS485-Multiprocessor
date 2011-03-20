@@ -23,6 +23,12 @@ static void USARTPHY2_SendData(uint8 data);
 static TQUEUEU8 qSerialRx[2];
 static TQUEUEU8 qSerialTx[2];
 
+
+void RS485_Echo(uint8 data)//FIXME for echo to myself kak mak mai
+{
+  QueueU8Insert(&qSerialRx[1],data);
+}
+
 //------------------------------------------------------------------------------------------------
 //Application Layer
 void USARTAPI_Init(void)
@@ -239,11 +245,11 @@ void USART1_IRQHandler(void)
 
 void USART2_IRQHandler(void)
 {
-	if(USART_GetITStatus(USART2,USART_IT_RXNE)==SET)
-	{
-		USART_ClearITPendingBit(USART2,USART_IT_RXNE);
-  	QueueU8Insert(&qSerialRx[1],USART_ReceiveData(USART2));
-	}
+  if(USART_GetITStatus(USART2,USART_IT_RXNE)==SET)
+  {
+    USART_ClearITPendingBit(USART2,USART_IT_RXNE);
+    QueueU8Insert(&qSerialRx[1],USART_ReceiveData(USART2));
+  }
   if(USART_GetITStatus(USART2,USART_IT_TC)==SET)
   {
     uint8 tmp;

@@ -19,4 +19,6 @@ void USART2_SendStr(char *data);
 void zprint(char *str);
 
 
+void RS485_Echo(uint8 data);//FIXME for echo to myself kak mak mai
+
 
