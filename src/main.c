@@ -28,6 +28,8 @@ int main()
   USARTAPI_Init();
 
   USART1_SendStr("\f\r\n=================USART1====================");
+  USART1_SendStr("\r\nRS485Protocal ID : ");
+  USART1_SendChar(PACKET_MYID+'0');
   //USART2_SendStr("\f\r\n=================USART2====================");
 
   SysTick_Init();
@@ -35,6 +37,8 @@ int main()
   Button_Init();
   Cmd_Init();
   RS485ProtocalInit();
+
+  //RS485AskSin(1,10);
 
 	while(1)
 	{

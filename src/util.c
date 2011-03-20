@@ -65,6 +65,17 @@ void zstrcpy(char *dst,char *src)
     }
 }
 
+uint8 zstrlen(const char *str)
+{
+  uint8 i=0;
+  while(*str)
+  {
+    str++;
+    i++;
+  }
+  return i;
+}
+
 //CRC
 uint8 CRC8(uint8 data,uint8 prevcrc)
 {

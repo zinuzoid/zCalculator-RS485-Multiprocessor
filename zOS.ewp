@@ -1788,6 +1788,9 @@
     <file>
       <name>$PROJ_DIR$\src\util.h</name>
     </file>
+    <file>
+      <name>$PROJ_DIR$\src\zmath.h</name>
+    </file>
   </group>
   <group>
     <name>src</name>
@@ -1826,6 +1829,9 @@
     </file>
     <file>
       <name>$PROJ_DIR$\src\util.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\src\zmath.c</name>
     </file>
   </group>
   <group>

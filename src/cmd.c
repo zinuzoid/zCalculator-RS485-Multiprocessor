@@ -14,6 +14,9 @@
 #include "cmd.h"
 #include "roundrobintask.h"
 #include "util.h"
+#include "rs485protocal.h"
+
+#include <stdlib.h>
 
 #define ASCII_ESC       	27
 #define ASCII_ENTER 			13
@@ -22,13 +25,20 @@
 #define ASCII_CLR_SCREEN	12
 
 static void CmdManage_Init(TCMD *cmd,TPRINT print,const TCMD_TABLE *table,const char *prompt);
-static uint8 Cmd_Help(uint8 *cmd,uint8 len,TPRINT print);
-static uint8 Cmd_TaskMonitor(uint8 *cmd,uint8 len,TPRINT print);
 static uint8 TCMD_BUF_IsFull(TCMD *cmd);
 static uint8 TCMD_BUF_IsEmpty(TCMD *cmd);
 static void CmdManage_Exe(TCMD *cmd);
 static uint8 CmdManage_Check(TCMD *cmd);
 static void CmdManage_Clear(TCMD *cmd);
+
+static uint8 Cmd_Help(uint8 *cmd,uint8 len,TPRINT print);
+static uint8 Cmd_TaskMonitor(uint8 *cmd,uint8 len,TPRINT print);
+static uint8 Cmd_Sin(uint8 *cmd,uint8 len,TPRINT print);
+static uint8 Cmd_Cos(uint8 *cmd,uint8 len,TPRINT print);
+static uint8 Cmd_Tan(uint8 *cmd,uint8 len,TPRINT print);
+static uint8 Cmd_Log(uint8 *cmd,uint8 len,TPRINT print);
+
+static void ParseCalcParam(char* str,int8 *a,int8 *b);
 
 TTASK cmdtask;
 
@@ -39,6 +49,10 @@ TCMD_TABLE cmdtable[]={
   {"Reserved",0},
   {"help",Cmd_Help},
   {"task",Cmd_TaskMonitor},
+  {"sin",Cmd_Sin},
+  {"cos",Cmd_Cos},
+  {"tan",Cmd_Tan},
+  {"log",Cmd_Log},
   {"",0}//for end check
 };
 
@@ -97,7 +111,7 @@ void CmdManage_Recv(TCMD *cmd,uint8 ch)
       cmd->buf.index++;
       cmd->buf.cmd[cmd->buf.index]=0;//terminate
       cmd->print((char*)&ch);//echo
-      USART2_SendChar(ch);//pass to 485
+      //USART2_SendChar(ch);//pass to 485
     }
     break;
   }
@@ -129,7 +143,7 @@ static uint8 CmdManage_Check(TCMD *cmd)
 
   for(idx=1;cmd->table[idx].cmd[0];idx++)
   {
-    if(zstrcmpnc(cmd->buf.cmd,(uint8*)cmd->table[idx].cmd,cmd->buf.index))
+    if(zstrcmpnc(cmd->buf.cmd,(uint8*)cmd->table[idx].cmd,zstrlen(cmd->table[idx].cmd)))
       return idx;
   }
 
@@ -179,6 +193,47 @@ static uint8 Cmd_Help(uint8 *cmd,uint8 len,TPRINT print)
   print("\r\nHelp Test.");
   return 1;
 }
+
+static uint8 Cmd_Sin(uint8 *cmd,uint8 len,TPRINT print)
+{
+  int8 a,b;
+  cmd+=4;
+  ParseCalcParam((char*)cmd,&a,&b);
+  print("\r\nAskSin Send.");
+  RS485AskSin(a,b);
+  return 1;
+}
+
+static uint8 Cmd_Cos(uint8 *cmd,uint8 len,TPRINT print)
+{
+  int8 a,b;
+  cmd+=4;
+  ParseCalcParam((char*)cmd,&a,&b);
+  print("\r\nAskCos Send.");
+  RS485AskSin(a,b);
+  return 1;
+}
+
+static uint8 Cmd_Tan(uint8 *cmd,uint8 len,TPRINT print)
+{
+  int8 a,b;
+  cmd+=4;
+  ParseCalcParam((char*)cmd,&a,&b);
+  print("\r\nAskTan Send.");
+  RS485AskSin(a,b);
+  return 1;
+}
+
+static uint8 Cmd_Log(uint8 *cmd,uint8 len,TPRINT print)
+{
+  int8 a,b;
+  cmd+=4;
+  ParseCalcParam((char*)cmd,&a,&b);
+  print("\r\nAskLog Send.");
+  RS485AskSin(a,b);
+  return 1;
+}
+
 static uint8 Cmd_TaskMonitor(uint8 *cmd,uint8 len,TPRINT print)
 {
   TaskMonitor(print);
@@ -186,7 +241,19 @@ static uint8 Cmd_TaskMonitor(uint8 *cmd,uint8 len,TPRINT print)
 }
 //end Command Function
 //------------------------------------------------------------------------------------------------
+static void ParseCalcParam(char* str,int8 *a,int8 *b)
+{
+  char *ptr=str;
+  while(*ptr!='.')
+    ptr++;
+  *ptr=0;
+  *a=atoi(str);
 
+  str=ptr+1;
+  *b=atoi(str);
+  if(zstrlen(str)==1)
+    *b=*b*10;
+}
 
 
 

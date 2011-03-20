@@ -2,7 +2,7 @@
 ** Program 	:	usart.c
 ** Project	:	zOS
 ** CPU		:	STM32F100
-** Date		:	11/2/2011
+** Date		:	19/3/2011
 ** Modify	:	Jetsada Machom <Zinuzoid Corporation Co.,Ltd.> zinuzoid@gmail.com
 ** Copyright:	
 ** Note 	:	
