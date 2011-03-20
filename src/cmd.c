@@ -197,7 +197,7 @@ static uint8 Cmd_Help(uint8 *cmd,uint8 len,TPRINT print)
 static uint8 Cmd_Sin(uint8 *cmd,uint8 len,TPRINT print)
 {
   int8 a,b;
-  cmd+=4;
+  cmd+=3;
   ParseCalcParam((char*)cmd,&a,&b);
   print("\r\nAskSin Send.");
   RS485AskSin(a,b);
@@ -207,7 +207,7 @@ static uint8 Cmd_Sin(uint8 *cmd,uint8 len,TPRINT print)
 static uint8 Cmd_Cos(uint8 *cmd,uint8 len,TPRINT print)
 {
   int8 a,b;
-  cmd+=4;
+  cmd+=3;
   ParseCalcParam((char*)cmd,&a,&b);
   print("\r\nAskCos Send.");
   RS485AskCos(a,b);
@@ -217,7 +217,7 @@ static uint8 Cmd_Cos(uint8 *cmd,uint8 len,TPRINT print)
 static uint8 Cmd_Tan(uint8 *cmd,uint8 len,TPRINT print)
 {
   int8 a,b;
-  cmd+=4;
+  cmd+=3;
   ParseCalcParam((char*)cmd,&a,&b);
   print("\r\nAskTan Send.");
   RS485AskTan(a,b);
@@ -227,7 +227,7 @@ static uint8 Cmd_Tan(uint8 *cmd,uint8 len,TPRINT print)
 static uint8 Cmd_Log(uint8 *cmd,uint8 len,TPRINT print)
 {
   int8 a,b;
-  cmd+=4;
+  cmd+=3;
   ParseCalcParam((char*)cmd,&a,&b);
   print("\r\nAskLog Send.");
   RS485AskLog(a,b);
@@ -244,14 +244,14 @@ static uint8 Cmd_TaskMonitor(uint8 *cmd,uint8 len,TPRINT print)
 static void ParseCalcParam(char* str,int8 *a,int8 *b)
 {
   char *ptr=str;
-  
+
   while((*ptr!='.')&&(*ptr!=0))
     ptr++;
   if(*ptr=='.')//FIXME algorithm kak mak
   {
     *ptr=0;
     *a=atoi(str);
-  
+
     str=ptr+1;
     *b=atoi(str);
     if(zstrlen(str)==1)
